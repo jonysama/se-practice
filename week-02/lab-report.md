@@ -137,16 +137,43 @@ The AI wrote 7 test assertions, grouped inside one `test_analyze_marks()` functi
 **The complete prompt I wrote** (one message, sent to a fresh chat):
 
 ```
+You are a Python developer. Implement analyze_marks(marks, pass_mark=50).
+Return a dictionary with exactly these keys: average, highest, lowest, pass_rate.
 
+Rules:
+
+marks is a list of numbers from 0 to 100 inclusive.
+
+A mark passes if mark >= pass_mark (a mark equal to pass_mark counts as passing).
+
+pass_rate is the percentage of passing marks, from 0 to 100.
+
+Round both average and pass_rate to exactly 2 decimal places, then store the
+rounded values in the returned dictionary.
+
+Raise ValueError if marks is empty, contains a non-numeric value, or contains
+a value outside 0-100. Also reject booleans.
+
+Do not use any external libraries.
+
+Example:
+analyze_marks([40, 60, 80], 50)
+returns {"average": 60.0, "highest": 80, "lowest": 40, "pass_rate": 66.67}
+
+Include tests for: one mark, decimals, custom pass_mark, empty list, text value,
+and marks below 0 or above 100. State any remaining assumptions before the code.
 ```
+
 
 **What I deliberately added that A, B and C did not have:**
 
-1.
-2.
-3.
+1.**An explicit rounding rule** — "Round both average and pass_rate to exactly 2 decimal places." In B, `pass_rate` came back as `66.66666666666666`; the harness only accepted it because of its 0.01 tolerance. C rounded correctly, but only because the example showed `66.67` — it never stated the rounding rule directly.
+2.**An explicit statement that `mark >= pass_mark` counts as passing** — the same ambiguity that decides case 3 (`[49.5, 50]` → pass_rate 50.0). A wrong `>` would have produced 0.0.
+3.**An explicit boolean rejection rule** — B and C silently rejected `True`/`False` but never said so. D names it, so the behaviour is now part of the contract, not a hidden assumption.
 
 **The ambiguity I found in the specification, and how I resolved it inside Prompt D:**
+
+The specification's worked example shows `pass_rate 66.67`, but never says the value must be rounded. Prompt B returned `66.66666666666666` — mathematically correct, but not equal to the value in the spec. The harness tolerated this because of its `0.01` numeric tolerance. In Prompt D I resolved the ambiguity explicitly with the sentence "Round both average and pass_rate to exactly 2 decimal places", so the returned value is `66.67`, matching the spec exactly.
 
 ---
 
@@ -156,13 +183,13 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
 | # | Call | Required | A | B | C | D |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | PASS | PASS | |
-| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | PASS | PASS | |
-| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | PASS | PASS | |
-| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | PASS | PASS | |
-| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | PASS | PASS | |
-| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | PASS | PASS | |
-| | **Totals** | | 0/6 | 6/6 | 6/6 | /6 |
+| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | PASS | PASS | PASS |
+| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | PASS | PASS | PASS |
+| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | PASS | PASS | PASS |
+| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | PASS | PASS | PASS |
+| | **Totals** | | 0/6 | 6/6 | 6/6 | 6/6 |
 
 **For every FAIL and ERROR above, one line: what was returned or raised instead.**
 
@@ -261,7 +288,38 @@ RESULT  6 PASS · 0 FAIL · 0 ERROR   (week-02/code/prompt_c.py)
 **Prompt D**
 
 ```
-
+========================================================================
+analyze_marks harness — week-02/code/prompt_d.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.67
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: marks must not be empty
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: all marks must be numeric
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: all marks must be between 0 and 100
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (week-02/code/prompt_d.py)
+========================================================================
 ```
 
 ---
@@ -272,16 +330,22 @@ RESULT  6 PASS · 0 FAIL · 0 ERROR   (week-02/code/prompt_c.py)
 
 | Criterion | A | B | C | D |
 | --- | --- | --- | --- | --- |
-| Correctness (cases passed) | | | | |
-| Requirement coverage | | | | |
-| Verifiability (tests) | | | | |
-| Assumptions stated | | | | |
-| Noise (2 = none) | | | | |
-| **Total / 10** | | | | |
+| Correctness (cases passed) | 0 | 2 | 2 | 2 |
+| Requirement coverage | 0 | 2 | 2 | 2 |
+| Verifiability (tests) | 0 | 1 | 2 | 2 |
+| Assumptions stated | 0 | 1 | 2 | 2 |
+| Noise (2 = none) | 0 | 2 | 2 | 2 |
+| **Total / 10** | **0** | **8** | **10** | **10** |
 
-**Prompt length, in words:** A ____ · B ____ · C ____ · D ____
+**Prompt length, in words:** A 6 · B 62 · C 110 · D 128
 
-**Words added per point gained** — B over A, C over B, D over C. One line on what that ratio says:
+**Words added per point gained** — B over A, C over B, D over C:
+
+- A → B: +56 words for +8 points (7 words per point) — by far the best return on writing effort.
+- B → C: +48 words for +2 points (24 words per point) — the worked example and required tests cost more per point, but they removed the two remaining ambiguities.
+- C → D: +18 words for +0 points — D scored the same as C, but D's extra sentence ("round to 2 decimals") makes the contract explicit rather than inferred from an example.
+
+One line on what that ratio says: *Most of the value came from the first structured prompt; after that, extra words bought specificity, not correctness — the harness could not tell C and D apart, even though D is safer to re-run in the future.*
 
 ---
 
@@ -294,13 +358,27 @@ changed verdict; (3) what was pure noise; (4) the ambiguity and your resolution.
 Name test cases and real returned values. "More detailed prompts work better" scores zero.
 
 ```
-(150–200 words)
+Prompt D scored 10/10, tied with C, and it is the one I would use at work. Both
+passed all six cases. D is safer because its rounding rule is stated directly.
 
+The addition that helped most was naming the signature and the return shape in
+Prompt B. Prompt A scored 0/6 because it defined no analyze_marks function at
+all. It printed a hardcoded report about four invented students, and the harness
+rejected it before any case ran. Adding the signature and the four return keys
+took the score from 0/6 to 6/6. Case 3 with [49.5, 50] caught the difference
+between > and >=. B wrote >=, and pass_rate came back as 50.0. With > it would
+have been 0.0.
 
+Prompt C's own tests were noise. They passed against C's own code, and a test
+written by the author agrees with the author. The harness is written by someone
+else, which is the point.
 
+The ambiguity I found: B returned pass_rate = 66.66666666666666, but the spec
+example shows 66.67. The harness tolerance hid the difference. D fixed it with
+one line: Round both average and pass_rate to exactly 2 decimal places.
 ```
 
-**Word count:**
+**Word count:** 192
 
 ---
 
