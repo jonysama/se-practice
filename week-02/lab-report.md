@@ -99,25 +99,36 @@ no external libraries. Return code plus a short explanation.
 **What I appended to Prompt B:**
 
 ```
-
+Example: analyze_marks([40, 60, 80], 50) → average 60, highest 80, lowest 40,
+pass_rate 66.67. Include tests for: one mark, decimals, custom pass_mark, empty list,
+text value, and marks below 0 or above 100. State any remaining assumptions before
+the code.
 ```
+
 
 **Tests the AI wrote for itself** — how many, and which situations do they cover?
 
+The AI wrote 7 test assertions, grouped inside one `test_analyze_marks()` function.
+
 | Situation | Covered by the AI's tests? |
 | --- | --- |
-| one mark | |
-| decimals | |
-| custom pass_mark | |
-| empty list | |
-| text value | |
-| below 0 / above 100 | |
+| one mark | yes — `analyze_marks([75])` |
+| decimals | yes — `analyze_marks([25.5, 50.5, 74.0])` |
+| custom pass_mark | yes — `analyze_marks([40, 60, 80], 70)` |
+| empty list | yes — `analyze_marks([])` inside try/except |
+| text value | yes — `analyze_marks([40, "60", 80])` inside try/except |
+| below 0 / above 100 | yes — two separate tests: `[-1, 50, 80]` and `[40, 101, 80]` |
 
-**Do the AI's own tests pass against the AI's own code?** yes / no
+**Do the AI's own tests pass against the AI's own code?** yes — the file runs and prints `{'average': 60.0, 'highest': 80, 'lowest': 40, 'pass_rate': 66.67}` at the end without any assertion errors.
 
-**Do they agree with the harness in section 6?** yes / no — if no, where do they disagree:
+**Do they agree with the harness in section 6?** yes — every situation the AI tested is also tested by the harness, and all six harness cases PASS.
 
 **Assumptions C stated explicitly before the code:**
+
+1.`marks` is expected to be an iterable of marks, typically a list.
+2.`pass_mark` must be numeric; it is allowed to be outside 0–100 because only the marks themselves are constrained.
+3.Booleans are rejected even though Python treats `bool` as a numeric subtype.
+4.`average` and `pass_rate` are rounded to 2 decimal places.
 
 ---
 
@@ -145,13 +156,13 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
 | # | Call | Required | A | B | C | D |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | PASS | | |
-| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | PASS | | |
-| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | PASS | | |
-| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | PASS | | |
-| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | PASS | | |
-| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | PASS | | |
-| | **Totals** | | 0/6 | 6/6 | /6 | /6 |
+| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | PASS | PASS | |
+| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | PASS | PASS | |
+| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | PASS | PASS | |
+| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | PASS | PASS | |
+| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | PASS | PASS | |
+| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | PASS | PASS | |
+| | **Totals** | | 0/6 | 6/6 | 6/6 | /6 |
 
 **For every FAIL and ERROR above, one line: what was returned or raised instead.**
 
@@ -213,7 +224,38 @@ RESULT  6 PASS · 0 FAIL · 0 ERROR   (week-02/code/prompt_b.py)
 **Prompt C**
 
 ```
-
+========================================================================
+analyze_marks harness — week-02/code/prompt_c.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.67
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: marks cannot be empty
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: all marks must be numeric
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: marks must be between 0 and 100
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (week-02/code/prompt_c.py)
+========================================================================
 ```
 
 **Prompt D**
