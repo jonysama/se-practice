@@ -39,25 +39,32 @@ n/a — used Python
 **Prompt sent** (should be exactly one sentence):
 
 ```
-
+Write Python code to analyze student marks.
 ```
 
 **Assumptions the AI made that I never gave it** — list them, one per line. A data format, a pass
 threshold, a rounding rule, an input method, an invented feature all count.
 
-1.
-2.
-3.
+1.**Student names (Alice, Bob, Charlie, David) and their individual marks.** The AI invented four named students and gave each of them a list of five grades. I never mentioned any students or names — I only asked for code to "analyze student marks".
+2.**Data format: a dictionary where each key is a name and each value is a list of marks.** I never said anything about how the marks are stored.
+3.**Letter grading scale A / B / C / D / F** with thresholds 90 / 80 / 70 / 60. Nothing in my prompt mentioned grades or a grading scale.
+4.**A "Status: Pass / Fail" rule with a threshold of 40.** The AI invented its own pass threshold (40) — I never gave one. The spec later says 50, but the AI had no way to know that.
+5.**A "Total" column per student.** I never asked for totals.
+6.**A printing script instead of a function.** The output is printed with `print()` at module level — there is no function at all, no `analyze_marks`, no return value.
+7.**No `pass_mark` parameter.** The AI hardcoded its own pass rule (`average >= 40`) inside the loop.
+8.**No input validation.** The code assumes every value is a number and never raises an error for invalid input.
+9.**No function signature at all.** The AI did not create any callable; the script runs immediately on import.
 
 **Questions it should have asked and did not:**
 
-1.
-2.
+1."What should the function be called, and what arguments does it take?" — the signature `analyze_marks(marks, pass_mark=50)` was never produced.
+2."Should the code return a value or print to the console?" — the AI chose to print, not return.
 
-**Is the function named `analyze_marks` with the required signature?** yes / no — if no, what is it
-called:
+**Is the function named `analyze_marks` with the required signature?** No — there is no function called `analyze_marks`. The file is a top-level script with hardcoded data.
 
 **First impression before testing** (one sentence — you will compare this with section 6 later):
+
+Looks like a plausible little report script, but it is a completely different program from what the lab asks for — no function, no parameters, no return value, no validation.
 
 ---
 
@@ -132,19 +139,19 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
 | # | Call | Required | A | B | C | D |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | | | | |
-| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | | | | |
-| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | | | | |
-| 4 | `analyze_marks([], 50)` | raises ValueError | | | | |
-| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | | | | |
-| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | | | | |
-| | **Totals** | | /6 | /6 | /6 | /6 |
+| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | | | |
+| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | | | |
+| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | | | |
+| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | | | |
+| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | | | |
+| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | | | |
+| | **Totals** | | 0/6 | /6 | /6 | /6 |
 
 **For every FAIL and ERROR above, one line: what was returned or raised instead.**
 
 | Prompt | Case | What actually happened |
 | --- | --- | --- |
-| | | |
+| A | 1–6 | All six cases ERROR — the file defines no callable `analyze_marks`. It runs as a script with hardcoded data and prints a report instead of returning a dictionary. |
 | | | |
 | | | |
 
@@ -156,7 +163,8 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 **Prompt A**
 
 ```
-
+ERROR: week-02\code\prompt_a.py defines no callable named 'analyze_marks'.
+All six cases count as ERROR. Record that in lab-report.md.
 ```
 
 **Prompt B**
