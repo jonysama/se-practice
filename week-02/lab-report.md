@@ -73,18 +73,24 @@ Looks like a plausible little report script, but it is a completely different pr
 **Prompt sent** (paste it in full, including any substitutions):
 
 ```
-
+You are a Python developer. Implement analyze_marks(marks, pass_mark=50). Return
+average, highest, lowest, and pass_rate in a dictionary. Accept marks from 0 to 100;
+raise ValueError for an empty list, non-numeric values, or out-of-range values. Use
+no external libraries. Return code plus a short explanation.
 ```
 
 **What B fixed compared to A:**
 
-1.
-2.
+1.B produced the required function `analyze_marks(marks, pass_mark=50)` with the correct signature — A produced no callable at all.
+2.B returns a dictionary with the four required keys `average`, `highest`, `lowest`, `pass_rate` — A only printed text and invented its own keys.
+3.B validates input and raises `ValueError` for empty list, non-numeric values, and out-of-range values — A had no validation.
+4.B uses `>=` for the pass check, so a mark equal to `pass_mark` counts as passing — A had no pass_mark parameter at all.
 
 **What B still leaves open:**
 
-1.
-2.
+1.`pass_rate` is returned as a raw float (`66.66666666666666`) instead of being rounded to 2 decimals (`66.67`). The harness tolerates this because of its 0.01 tolerance, but the example in the spec shows `66.67`.
+2.The code silently treats `bool` values (`True`/`False`) as invalid — a reasonable choice, but not stated in the prompt, so it is an assumption.
+3.`average` is returned without rounding too (`60.0` here happens to be exact, but `[1, 2]` would give `1.5`, and `[1, 2, 4]` would give `2.3333...`).
 
 ---
 
@@ -139,13 +145,13 @@ Six cases × four prompts. Verdicts are **PASS**, **FAIL** or **ERROR** only.
 
 | # | Call | Required | A | B | C | D |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | | | |
-| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | | | |
-| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | | | |
-| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | | | |
-| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | | | |
-| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | | | |
-| | **Totals** | | 0/6 | /6 | /6 | /6 |
+| 1 | `analyze_marks([40, 60, 80], 50)` | avg 60 · high 80 · low 40 · rate 66.67 | ERROR | PASS | | |
+| 2 | `analyze_marks([100], 50)` | avg 100 · high 100 · low 100 · rate 100 | ERROR | PASS | | |
+| 3 | `analyze_marks([49.5, 50], 50)` | avg 49.75 · high 50 · low 49.5 · rate 50 | ERROR | PASS | | |
+| 4 | `analyze_marks([], 50)` | raises ValueError | ERROR | PASS | | |
+| 5 | `analyze_marks([40, "60"], 50)` | raises ValueError | ERROR | PASS | | |
+| 6 | `analyze_marks([-1, 50, 101], 50)` | raises ValueError | ERROR | PASS | | |
+| | **Totals** | | 0/6 | 6/6 | /6 | /6 |
 
 **For every FAIL and ERROR above, one line: what was returned or raised instead.**
 
@@ -170,7 +176,38 @@ All six cases count as ERROR. Record that in lab-report.md.
 **Prompt B**
 
 ```
-
+========================================================================
+analyze_marks harness — week-02/code/prompt_b.py
+tolerance for numeric comparison: 0.01
+========================================================================
+SIGNATURE: ok
+------------------------------------------------------------------------
+case 1  PASS   analyze_marks([40, 60, 80], 50)
+          expect: average=60.0, highest=80, lowest=40, pass_rate=66.67
+          got   : average=60.0, highest=80, lowest=40, pass_rate=66.66666666666666
+------------------------------------------------------------------------
+case 2  PASS   analyze_marks([100], 50)
+          expect: average=100.0, highest=100, lowest=100, pass_rate=100.0
+          got   : average=100.0, highest=100, lowest=100, pass_rate=100.0
+------------------------------------------------------------------------
+case 3  PASS   analyze_marks([49.5, 50], 50)
+          expect: average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+          got   : average=49.75, highest=50, lowest=49.5, pass_rate=50.0
+------------------------------------------------------------------------
+case 4  PASS   analyze_marks([], 50)
+          expect: ValueError
+          got   : raised ValueError: marks must not be empty
+------------------------------------------------------------------------
+case 5  PASS   analyze_marks([40, '60'], 50)
+          expect: ValueError
+          got   : raised ValueError: marks must contain only numeric values
+------------------------------------------------------------------------
+case 6  PASS   analyze_marks([-1, 50, 101], 50)
+          expect: ValueError
+          got   : raised ValueError: marks must be between 0 and 100
+------------------------------------------------------------------------
+RESULT  6 PASS · 0 FAIL · 0 ERROR   (week-02/code/prompt_b.py)
+========================================================================
 ```
 
 **Prompt C**
