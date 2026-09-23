@@ -80,7 +80,104 @@ Six — one for each of the six use cases defined in section 1. Keeping exactly 
 ## 4. Original AI output — acceptance criteria (Part 3)
 
 ```
-(paste here)
+Below are acceptance criteria for each story, with the assumptions listed first.
+
+US-02 — Book a free study room
+
+Assumption: The system enforces R1–R4.
+
+US-02 Acceptance Criteria
+
+AC1 — Successful booking
+
+Given a student has selected an available, unblocked room
+When the student enters a start time in the future and a duration of no more than two hours and confirms the booking
+Then the system creates the booking for that room and time slot.
+
+AC2 — Booking must start in the future
+
+Given a student is booking a room
+When the selected start time is in the past or is the current time
+Then the system rejects the booking and indicates that the booking must start in the future.
+
+AC3 — Maximum duration
+
+Given a student has selected an available room
+When the requested booking duration is greater than two hours
+Then the system rejects the booking and indicates that a booking may last at most two hours.
+
+AC4 — Overlapping booking
+
+Given a room already has a booking that overlaps the requested time slot
+When the student attempts to book that room
+Then the system rejects the booking and indicates that the room is unavailable for the selected time.
+
+AC5 — Blocked room
+
+Given the selected room is blocked
+When the student attempts to book it
+Then the system rejects the booking and does not create a new booking.
+US-03 — Cancel a booking
+
+Assumption: A student can cancel any of their own future bookings, but not past ones.
+
+US-03 Acceptance Criteria
+
+AC1 — Successful cancellation
+
+Given a student has a future booking that they made
+When the student chooses to cancel the booking
+Then the system cancels the booking and the corresponding time slot becomes available for booking.
+
+AC2 — Cannot cancel a past booking
+
+Given a student has a booking whose scheduled time has already passed
+When the student attempts to cancel it
+Then the system rejects the cancellation and leaves the booking unchanged.
+
+AC3 — Cannot cancel another student's booking
+
+Given a booking was made by a different student
+When the current student attempts to cancel that booking
+Then the system rejects the cancellation and does not change the booking.
+
+AC4 — Cancellation of a future booking
+
+Given a student's booking has a start time in the future
+When the student confirms cancellation
+Then the booking is no longer considered an active booking for that time slot.
+US-04 — Block or unblock a room
+
+Assumption: Blocking a room prevents new bookings, as required by R4.
+
+US-04 Acceptance Criteria
+
+AC1 — Successfully block a room
+
+Given an administrator selects an unblocked room
+When the administrator blocks the room
+Then the room is marked as blocked and cannot be booked by students.
+
+AC2 — Booking a blocked room is rejected
+
+Given a room has been blocked by an administrator
+When a student attempts to make a new booking for that room
+Then the system rejects the booking and indicates that the room is blocked.
+
+AC3 — Successfully unblock a room
+
+Given a room is currently blocked
+When an administrator unblocks the room
+Then the room is marked as unblocked and can be booked again, subject to the other booking rules.
+
+AC4 — Unblocking does not create an overlapping booking
+
+Given a room is unblocked and an existing booking occupies a requested time slot
+When a student attempts to book that overlapping time slot
+Then the booking is rejected because two bookings for the same room cannot overlap.
+
+These criteria cover successful behavior, validation, and alternative/error cases while applying the stated booking rules.
+
 ```
 
 ---
@@ -89,16 +186,27 @@ Six — one for each of the six use cases defined in section 1. Keeping exactly 
 
 | Criterion (as generated) | Problem | What I changed it to | Final ID |
 | --- | --- | --- | --- |
-| | | | |
+| US-02 AC1–AC5 | No problem — covers happy path plus all four business rules (R1, R2, R3, R4) | Kept, renumbered | AC-01 … AC-05 |
+| US-02 AC3 (max duration) | Does not say whether exactly two hours is allowed or not — leaves the open question unresolved | Reworded to make the boundary explicit: >2h rejected, ==2h accepted | AC-03 |
+| US-02 AC4 (overlap) | Does not say whether a booking ending exactly when another begins counts as overlap | Reworded to make the boundary explicit: touching bookings count as an overlap | AC-04 |
+| US-03 AC1–AC3 | Correct, mapped to UC-03 | Kept, renumbered | AC-06 … AC-08 |
+| US-03 AC4 | Duplicate of AC1 — both describe a successful cancellation of a future booking | Deleted; replaced with a criterion about the freed time slot becoming available to others | AC-09 |
+| US-04 AC1 | Correct — administrator blocks a room | Kept, renumbered | AC-10 |
+| US-04 AC2 | Tests a student action, not an administrator action. The story is about the Administrator. Also duplicates US-02 AC5. | Rewritten to test the administrator side: blocking does not cancel existing bookings, only prevents new ones | AC-11 |
+| US-04 AC3 | Correct — administrator unblocks a room | Kept, renumbered | AC-12 |
+| US-04 AC4 | Confused — describes a student making a booking, which is not part of the unblock action at all | Rewritten to test the post-unblock state: after unblocking, the room can be booked again under R1–R3 | AC-13 |
+| (missing) | The two open questions were never tested at all | Added explicit boundary rules to the assumptions and to AC-03 and AC-04 | — |
 
 **The two open questions.** Write your decision and the reason. Either answer is accepted.
 
 | Question | My decision | Why |
 | --- | --- | --- |
-| A booking ending exactly when another begins — overlap under R3? | allowed / not-allowed | |
-| Is exactly two hours allowed under R2? | allowed / not-allowed | |
+| A booking ending exactly when another begins — overlap under R3? | not-allowed | Treating the boundary as an overlap is safer for scheduling: a student cannot argue that a back-to-back booking is legal, and the code check `start < other_end and end > other_start` covers touching bookings without a special case. |
+| Is exactly two hours allowed under R2? | allowed | R2 says "at most two hours". "At most" includes the limit itself, so exactly two hours is allowed. |
 
 **Which invalid or boundary case did the assistant leave out?**
+
+The boundary case that changes the outcome of two rules: it never said whether a booking that ends exactly when another begins counts as an overlap under R3, and it never said whether exactly two hours is allowed under R2. Both are boundary values that could pass or fail depending on the interpretation, and the assistant tested neither.
 
 ---
 
