@@ -1,10 +1,5 @@
 # User stories — Smart Campus study room booking
 
-6 to 8 stories. Keep the shape exactly: ID, the As/I want/so that sentence, a priority, one
-assumption. Roles are **Student** or **Administrator** only.
-
-Delete the TODO lines as you fill them in — the checker treats a leftover TODO as unfinished work.
-
 ---
 
 ### US-01
@@ -33,7 +28,7 @@ Delete the TODO lines as you fill them in — the checker treats a leftover TODO
 **Assumption:** Reviewing usage is read-only and does not change any existing booking.
 
 ### US-06
-**Story:** As a Student, I want to receive a confirmation when my booking is made or cancelled, so that I can rely on the booking without checking the system again.
+**Story:** As a Student, I want to receive a confirmation when my booking is made or cancelled, so that I can rely on the booking without looking at the system again.
 **Priority:** Medium
 **Assumption:** The confirmation is sent by the system as a consequence of booking or cancelling, not by the student triggering it directly.
 

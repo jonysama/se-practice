@@ -273,11 +273,13 @@ No. The diagram uses only the two required actors and the six fixed use cases. T
 
 Summarise what the table in `requirements/traceability.md` shows:
 
-- Use cases with **no story** behind them:
-- Stories with **no use case** they belong to:
-- Criteria that test **no rule** from section 1:
+- Use cases with **no story** behind them: none — all six use cases have at least one story.
+- Stories with **no use case** they belong to: none — every US-nn maps to exactly one UC-nn.
+- Criteria that test **no rule** from section 1: three use cases (UC-01, UC-05, UC-06) have no acceptance criteria at all. UC-01, UC-05 and UC-06 are not covered by any AC-nn.
 
 **What does the largest gap tell you about the generated requirements?**
+
+The largest gap is not in the stories — it is in the acceptance criteria. UC-06 Send confirmation has a story (US-06, which I had to write myself) but no criteria, because the AI's original output never mentioned it. UC-05 Review usage has a story (US-05, rewritten from the AI's confused "view bookings") but no criteria. UC-01 has a story and no criteria, because I only selected three stories for Part 3. This shows that the generated requirements look complete in the story layer but thin in the test layer — exactly the layer a checker cannot judge.
 
 ---
 
