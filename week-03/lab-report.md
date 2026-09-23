@@ -289,37 +289,101 @@ Paste the **real terminal output** of both runs. A table with nothing behind it 
 
 ```
 $ python tests/check_requirements.py
-(paste)
+PASS   US-1  user-stories.md         no placeholders left
+PASS   US-2  user-stories.md         6 stories, IDs US-01…US-06
+PASS   US-3  user-stories.md         every story has the required sentence shape
+PASS   US-4  user-stories.md         every story has a priority
+PASS   US-5  user-stories.md         every story declares an assumption
+PASS   US-6  user-stories.md         only Student and Administrator appear as roles
+PASS   US-7  user-stories.md         nothing from the out-of-scope list appears
+PASS   AC-1  acceptance-criteria.md  no placeholders left
+PASS   AC-2  acceptance-criteria.md  three sections, all naming real stories: US-02, US-03, US-04
+PASS   AC-3  acceptance-criteria.md  every section has 3 to 5 uniquely numbered criteria
+PASS   AC-4  acceptance-criteria.md  all 13 criteria are complete Given/When/Then
+PASS   AC-5  acceptance-criteria.md  every section covers an invalid or boundary case
+PASS   AC-6  acceptance-criteria.md  3 assumptions listed before the criteria
+PASS   AC-7  acceptance-criteria.md  both open questions are settled in the assumptions
+PASS   PU-1  use-cases.puml          valid PlantUML block, no placeholders
+PASS   PU-2  use-cases.puml          exactly two actors: Student, Administrator
+PASS   PU-3  use-cases.puml          all six use cases present
+PASS   PU-4  use-cases.puml          system boundary present
+PASS   PU-5  use-cases.puml          no screens, databases or internal components
+PASS   PU-6  use-cases.puml          no unjustified actor associations found
+PASS   TR-1  traceability.md         all six use cases have a row
+PASS   TR-2  traceability.md         every ID in the table resolves
+PASS   TR-3  traceability.md         every story appears in the table
+------------------------------------------------------------------------
+23 PASS · 0 FAIL · 0 ERROR   (23 checks)
+Shape is clean. This says nothing about whether the requirements are good.
 ```
 
 ```
 $ python tests/validate_submission.py
-(paste)
+submission.yml — submission.yml
+------------------------------------------------------------------------
+PASS   schema                                    1
+PASS   week                                      03
+PASS   student.name                              Zhanibek Alimkulov
+PASS   student.student_id                        24B031621
+PASS   student.github                            jonysama
+PASS   assistant.tool                            ChatGPT
+PASS   assistant.model                           GPT-5.6 Luna
+PASS   counts.user_stories                       6
+PASS   counts.acceptance_criteria_sets           3
+PASS   checker                                   23 PASS · 0 FAIL · 0 ERROR
+NOTE   checker                                   you are claiming a clean run — it will be re-run at your commit, so make sure it is true
+PASS   checker.commit                            24ac1bf
+PASS   assumptions.overlap_touching_bookings     not-allowed
+PASS   assumptions.exactly_two_hours             allowed
+PASS   traceability.use_cases_not_covered        UC-01, UC-05, UC-06
+PASS   traceability.stories_not_traced           []
+PASS   review_findings                           4 findings
+PASS   review_findings[1]                        UC-06 Send confirmation had no story behind it in the AI's o…
+PASS   review_findings[2]                        US-04 was rewritten because the AI's story #5 ('manage avail…
+PASS   review_findings[3]                        Administrator had an unjustified association to UC-01 View a…
+PASS   review_findings[4]                        AC-11 was rewritten: the AI's US-04 AC2 tested a Student act…
+PASS   honesty.can_explain_everything_submitted  yes
+PASS   honesty.ai_usage_disclosed                yes
+------------------------------------------------------------------------
+22 PASS · 0 FAIL · 0 ERROR · 1 note
+Shape is fine. This says nothing about whether the work is good.
 ```
 
 | | PASS | FAIL | ERROR |
 | --- | --- | --- | --- |
-| `check_requirements.py` | | | |
+| `check_requirements.py` | 23 | 0 | 0 |
 
 Commit these numbers were produced at (`git rev-parse --short HEAD`):
+
+`24ac1bf`
 
 **Every FAIL, one line each: what it is and what you decided to do about it.** A FAIL you report and
 explain costs you nothing.
 
+No FAILs in the final run. During development, two FAILs appeared and were fixed: US-1 (leftover `TODO` placeholder text from the template) and US-7 (`checking` in US-06 was flagged as out-of-scope vocabulary because it contains the substring `checkin`). Both were corrected before the final commit, and both were left visible in the transcript above rather than hidden.
+
 **Did you run the checks by hand instead of with Python?** Say so here — it costs nothing, but it
 has to be said.
+
+No — both checkers were run with the shipped Python files, from inside `week-03/`.
 
 ---
 
 ## 10. Conclusion (150–200 words)
 
-Answer all three:
+The most wrong part of the generated requirements was the stories layer. The AI invented three
+functions that are not in the scenario — "view my bookings", "manage study room information", and
+"manage bookings" — and skipped UC-06 Send confirmation entirely. Without a checker, I would have
+caught the three invented functions by re-reading the six fixed use cases in section 1 and asking
+"which of these does this story actually test?" The missing UC-06 would have been easier to miss:
+nothing in the output looked incomplete.
 
-1. Which part of the generated requirements was most wrong, and how would you have caught it without
-   a checker?
-2. What did the assistant get right that would have taken you noticeably longer by hand?
-3. You are handing these requirements to someone who will implement them, and you will not be in the
-   room. Which single one would you rewrite first, and why?
+The assistant got two things right that would have taken me noticeably longer. It produced working
+PlantUML source in one message, with no syntax debugging. And it wrote five coherent acceptance
+criteria for US-02 in Given/When/Then form, covering all four business rules — writing those from
+scratch would have been an hour.
 
-Be specific. "The AI was useful" is worth nothing; "UC-06 had no story behind it until I wrote
-US-07, and the checker is what told me" is worth everything.
+If I had to rewrite one thing for the implementer, it would be US-01 View availability. It has a
+story but no acceptance criteria, so the implementer has no contract for what "available" means:
+free right now, free for a given slot, or free for the requested duration. That is the gap most
+likely to produce a wrong implementation.
