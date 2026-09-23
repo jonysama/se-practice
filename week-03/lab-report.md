@@ -213,10 +213,39 @@ The boundary case that changes the outcome of two rules: it never said whether a
 ## 6. Original AI output — use-case diagram (Part 4)
 
 ```
-(paste the PlantUML source exactly as generated)
+@startuml
+left to right direction
+
+actor Student
+actor Administrator
+
+rectangle "Smart Campus Study Room Booking System" {
+  usecase "UC-01 View availability" as UC01
+  usecase "UC-02 Book room" as UC02
+  usecase "UC-03 Cancel booking" as UC03
+  usecase "UC-04 Block or unblock room" as UC04
+  usecase "UC-05 Review usage" as UC05
+  usecase "UC-06 Send confirmation" as UC06
+}
+
+Student --> UC01
+Student --> UC02
+Student --> UC03
+
+Administrator --> UC01
+Administrator --> UC04
+Administrator --> UC05
+
+UC02 ..> UC01 : <<include>>
+UC02 ..> UC06 : <<include>>
+
+@enduml
+
 ```
 
 Rendered diagram (image, or a link):
+
+https://www.plantuml.com/plantuml/png/RP39RW8n44Jl_HKbxY3sGuGGWJzWHEx6OoOjl4Hs3n6AykynooWQYvjT_QfwsIHHKLfdoPgJG08YDv-2cgFHmi4JAIqXefAsDbwUl_VQiUSaKUKVqOrLlh46WyhbFEoK-shJtNJ5FWI7RGXdzWsgQnBZ1lWXe4r6gvHDXzrmFC47cs-eYsAhZcnPhWEeXCDkF2dPwJqECGTtpBHaPda8hut5yT6v0sSbECVM1dr6Y6ZzCJ_xmVEINs1lBddKhAh6TDYYn9QeZA-XWpznTEfsouvTqY_Hyw0O3jUF7GjXMWepejxP_vqlvVbhUK5q2yTez33Z3QiLUsrph_MwLriMjKtUftNs3m00
 
 ---
 
@@ -224,12 +253,19 @@ Rendered diagram (image, or a link):
 
 | Element | Problem | What I changed |
 | --- | --- | --- |
-| | | |
+| `Administrator --> UC01 View availability` | The scenario gives the Administrator only two responsibilities: keeping rooms usable (UC-04) and watching how they are used (UC-05). Viewing availability is a Student action — the student needs to know which room to book. The Administrator never triggers UC-01. | Removed the association. |
+| `UC02 ..> UC01 : <<include>>` | Wrong stereotype. `<<include>>` means UC-01 always executes as part of UC-02. But a Student can book a room without first viewing availability — the system rejects the booking if the slot is taken. The relationship is not mandatory. | Removed the relationship. |
+| `UC03 Cancel booking` has no relationship to `UC06 Send confirmation` | UC-06 in the scenario confirms a booking **or a cancellation**. The diagram only showed UC-02 → UC-06, so a cancellation would never send a confirmation. | Added `UC03 ..> UC06 : <<include>>`. |
+| `UC02 ..> UC06 : <<include>>` | Defensible — a successful booking does trigger a confirmation. | Kept unchanged. |
 
 **Associations.** Which actor–use-case links did the assistant draw that a person does not actually
 trigger? Name them.
 
+`Administrator --> UC01 View availability` is the only unjustified actor–use-case link. The Administrator's responsibilities in the scenario are UC-04 (block or unblock room) and UC-05 (review usage) — nothing else. Nobody is linked to UC-06 Send confirmation, which is correct: the system triggers that function as a consequence of booking or cancelling, not a person.
+
 **Did any screen, database or internal component appear as a use case or an actor?**
+
+No. The diagram uses only the two required actors and the six fixed use cases. There is no "System" actor, no login screen, no database, no internal classes.
 
 ---
 
