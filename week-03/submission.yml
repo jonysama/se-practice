@@ -1,0 +1,39 @@
+schema: 1
+week: "03"
+
+student:
+  name: Zhanibek Alimkulov
+  student_id: 24B031621
+  github: jonysama
+
+assistant:
+  tool: ChatGPT
+  model: GPT-5.6 Luna
+
+counts:
+  user_stories: 6
+  acceptance_criteria_sets: 3
+
+checker:
+  pass: 23
+  fail: 0
+  error: 0
+  commit: 24ac1bf
+
+assumptions:
+  overlap_touching_bookings: not-allowed
+  exactly_two_hours: allowed
+
+traceability:
+  use_cases_not_covered: [UC-01, UC-05, UC-06]
+  stories_not_traced: []
+
+review_findings:
+  - "UC-06 Send confirmation had no story behind it in the AI's output — I added US-06 to cover it."
+  - "US-04 was rewritten because the AI's story #5 ('manage availability') was vague and did not name block/unblock as the specific action."
+  - "Administrator had an unjustified association to UC-01 View availability — the Administrator never triggers that use case in the scenario."
+  - "AC-11 was rewritten: the AI's US-04 AC2 tested a Student action inside an Administrator story, and duplicated US-02 AC5."
+
+honesty:
+  can_explain_everything_submitted: yes
+  ai_usage_disclosed: yes
