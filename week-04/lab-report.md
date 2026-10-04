@@ -59,15 +59,13 @@ AI's first replies are saved as files in `models/original/` — do not paste the
 
 ## 3. Task 1 — use-case review
 
-**Assumptions the AI listed:** <one line each, or "the AI listed none" — that is a finding too>
-
-At least **two** findings. A finding names the element, the problem and the rule or story that
-proves it is a problem.
+**Assumptions the AI listed:** The AI listed none explicitly, but its decisions imply two: (a) `Receive Booking Confirmation` is a use case, not just a side effect of booking; (b) `Block Room` and `Unblock Room` are two separate use cases, not one. Both are noted below.
 
 | # | Element | Problem | Rule or story | Fix |
 | --- | --- | --- | --- | --- |
-| 1 | <e.g. Student → Send confirmation> | <what is wrong> | <R4 / US-01 / scenario sentence> | <what you changed> |
-| 2 | <element> | <problem> | <rule or story> | <fix> |
+| 1 | `Student --> UC4 Receive Booking Confirmation` | The student is directly associated with a use case whose trigger is the system, not the student. A student does not set out to "receive a confirmation"; the system sends one as a consequence of a booking. | R4 ("A successful booking produces a confirmation") | Removed the association. UC4 is now reached only via `<<include>>` from UC2 and UC3. |
+| 2 | `UC2 ..> UC4 : <<include>>` and `UC3 ..> UC4 : <<include>>` | The two include relationships carry no `' why:` comment, which is required by the PlantUML conventions in README §4. | README §4 (every include / extend needs `' why:` on the line directly above) | Added `' why: R4 - a successful booking produces a confirmation` above the UC2 line and `' why: R4 - a cancellation also produces a confirmation` above the UC3 line. |
+| 3 | `Block Room` and `Unblock Room` as two separate use cases | The Week 03 approved story US-04 names "block or unblock" as a single goal, and the AI split it into two use cases. | US-04 | Kept as two use cases. Rationale: block and unblock have different preconditions (a room must be unblocked to block it, and blocked to unblock it), so splitting them is a defensible modelling decision. Declared as an assumption. |
 
 ---
 
