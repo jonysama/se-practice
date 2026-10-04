@@ -71,8 +71,6 @@ AI's first replies are saved as files in `models/original/` — do not paste the
 
 ## 4. Task 2 — class diagram review
 
-## 4. Task 2 — class diagram review
-
 ### 4.1 Relationships, read both ways
 
 | Association | Read left → right | Read right → left | Multiplicities |
@@ -103,14 +101,17 @@ AI's first replies are saved as files in `models/original/` — do not paste the
 
 ## 5. Task 3 — behaviour diagram review
 
-**Option chosen and why:** <3A sequence / 3B activity — one sentence on why>
+**Option chosen and why:** 3A sequence — it makes the R1/R2/R3 validation steps and their ordering explicit, which is what the reviewer needs to check. An activity diagram would show the same logic but as branches, and the sequence makes "validation before creation" visually obvious.
 
-**Design components added beyond the domain model:** <name each one, e.g. `BookingService` —
-what it does in one line; write "none" for an activity diagram>
+**Design components added beyond the domain model:** 
+- `BookingService` — coordinates the booking operation: validates the rules in order, then asks the repository to persist the booking. Not a domain concept; it is the application-level logic layer.
+- `BookingRepository` — persists and queries bookings. Handles the overlap check (R2) and the save operation. Not a domain concept; it is the persistence layer.
 
 | # | Element | Problem | Rule or story | Fix |
 | --- | --- | --- | --- | --- |
-| 1 | <element> | <problem> | <rule or story> | <fix> |
+| 1 | `hasOverlappingActiveBooking` message | The check implements R2, but nothing in the diagram labels it as R2. R1 and R3 are explicitly named ("validate R1", "validate R3"); R2 is only implicit in the method name. | R2 | Added a `note right of BookingRepository` stating R2 explicitly: "no two ACTIVE bookings for the same room may overlap in time". |
+| 2 | `alt Room is available` / `else Room is unavailable` | Guards are long noun phrases. The README §4 convention shows short guards (`created` / `unavailable`). | README §4 (notation convention) | Shortened to `available` / `unavailable`. The full meaning is preserved by the note and the surrounding messages. |
+| 3 | R1 and R3 validation messages | The two self-messages (`validate R1`, `validate R3`) carry the rule number but not the substance of the rule, so a reader has to guess what "R1" means. | R1, R3 | Added `note` blocks next to BookingService that spell out each rule, so the diagram is self-contained. |
 
 ---
 
