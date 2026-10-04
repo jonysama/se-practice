@@ -71,30 +71,33 @@ AI's first replies are saved as files in `models/original/` — do not paste the
 
 ## 4. Task 2 — class diagram review
 
-### 4.1 Relationships, read both ways
+## 4. Task 2 — class diagram review
 
-One row per association in your **revised** class diagram.
+### 4.1 Relationships, read both ways
 
 | Association | Read left → right | Read right → left | Multiplicities |
 | --- | --- | --- | --- |
-| <Student — Booking> | <one student makes 0..* bookings> | <each booking belongs to exactly 1 student> | <1 / 0..*> |
-| <Room — Booking> | <...> | <...> | <...> |
+| Student — Booking | one Student makes 0..* Bookings | each Booking is owned by exactly 1 Student | 1 / 0..* |
+| Room — Booking | one Room is reserved by 0..* Bookings | each Booking reserves exactly 1 Room | 1 / 0..* |
 
 ### 4.2 Constraints the multiplicities cannot show
 
-- R2: <how your diagram states it — which note, on which class>
-- <any other rule that is not visible in multiplicities>
+- R2: stated in a `note` on `Booking` — "no two ACTIVE bookings for the same Room may overlap in time". Multiplicity `0..*` counts every booking, active or cancelled; R2 only constrains the active ones, so it cannot be encoded as a multiplicity.
+- R1 (future start, ≤ 2 hours): not shown in a note. R1 is a precondition on the `startTime` attribute; the diagram does not model "now", so R1 is enforced by the operation, not by a diagram element. Declared in §4.3 as an assumption.
 
 ### 4.3 Assumptions
 
-- A1: <an assumption you had to make — e.g. what happens to existing bookings when a room is blocked>
-- <A2 ...>
+- A1: A booking whose `startTime` is in the past is not modelled — the diagram has no concept of "current time", so R1 is enforced outside the class diagram.
+- A2: The multiplicity `0..*` on the Booking end of both associations includes cancelled bookings. R2 only constrains ACTIVE bookings, which is why R2 lives in a note rather than in the multiplicity.
+- A3: Blocking a Room keeps the existing bookings as they are; only new bookings are rejected. Matches the assumption declared in `submission.yml`.
 
 ### 4.4 Findings
 
 | # | Element | Problem | Rule or story | Fix |
 | --- | --- | --- | --- | --- |
-| 1 | <element> | <problem> | <rule or story> | <fix> |
+| 1 | `Booking` class | No note states R2. Multiplicity `0..*` counts all bookings, so it cannot express "no overlapping active bookings". | R2; README §4 says "R2 goes in a note on Booking in the class diagram" | Added a `note right of Booking` containing "R2: no two ACTIVE bookings for the same Room may overlap in time." |
+| 2 | `hide methods` directive (top of the file) | The AI told PlantUML to hide methods but still defined operations on every class. The task prompt asks to add "appropriate operations", which are then invisible. | README §5 Task 2 prompt ("Add attributes, appropriate operations...") | Removed the `hide methods` line so the operations render. |
+| 3 | `BookingStatus` enum | Extra class beyond Student, Room and Booking. | R2 uses the word "active", which justifies a status attribute | Kept as is — declared as a justified addition. The enum makes "active" explicit rather than a loose string. |
 
 ---
 
