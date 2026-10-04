@@ -1,0 +1,54 @@
+# week-04/submission.yml — your declaration for this lab.
+#
+# Facts only. Every explanation goes in lab-report.md; nothing here repeats prose.
+# Fill every value. Check it before you push:
+#
+#     python tests/validate_submission.py
+#
+# The validator checks shape, never quality. A green run is the floor, not the grade.
+# If you cannot run Python, fill the file by hand against the comments — a malformed
+# file costs you nothing if the content is there.
+
+schema: 1
+week: "04"
+
+student:
+  name: Zhanibek Alimkulov
+  student_id: 24B031621
+  github: jonysama
+
+assistant:
+  tool: ChatGPT
+  model: GPT-5.6 Luna
+
+counts:
+  behaviour_diagram: sequence
+  stories_source: week-03
+  use_cases: 7
+  change_log_rows: 7
+
+checker:
+  pass: 37
+  fail: 0
+  error: 0
+  commit: 0788e80
+  kept_fails: []
+
+assumptions:
+  overlap_touching_bookings: not-allowed
+  blocking_a_booked_room: keep-bookings
+
+traceability:
+  use_cases_not_traced: []
+  rules_not_shown: []
+
+review_findings:
+  - "UC5: Student was linked directly to the Receive Booking Confirmation use case; a confirmation is a system outcome (R4), not a student goal, so the association was removed."
+  - "CL8: no note on Booking stated R2; multiplicity 0..* cannot express 'no overlapping active bookings', so a note right of Booking was added."
+  - "SQ7 / SQ3: the sequence diagram claimed to validate R3 but queried no Room object; a findRoom(roomId) message was added before the R3 check."
+  - "SQ2: hasOverlappingActiveBooking used endTime without calculating it; a self-message endTime = startTime + duration was added after R1 validation (R1 limits duration, not endTime)."
+
+honesty:
+  originals_unedited: yes
+  can_explain_everything_submitted: yes
+  ai_usage_disclosed: yes

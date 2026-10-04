@@ -1,0 +1,29 @@
+@startuml
+autonumber
+
+actor Student
+participant BookingService
+participant BookingRepository
+
+Student -> BookingService : bookRoom(roomId, startTime, duration)
+activate BookingService
+
+BookingService -> BookingService : validate R1\n(future start, duration > 0,\nduration <= 2 hours)
+BookingService -> BookingService : validate R3\n(room is not blocked)
+
+BookingService -> BookingRepository : hasOverlappingActiveBooking(roomId,\nstartTime, endTime)
+BookingRepository --> BookingService : overlapResult
+
+alt Room is available
+    BookingService -> BookingRepository : save(Booking)
+    BookingRepository --> BookingService : bookingSaved(bookingId)
+
+    BookingService --> Student : bookingConfirmed(bookingId)
+    deactivate BookingService
+
+else Room is unavailable
+    BookingService --> Student : bookingRejected("Room unavailable")
+    deactivate BookingService
+end
+
+@enduml
