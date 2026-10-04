@@ -122,37 +122,44 @@ critique is another claim to evaluate, not a verdict: reject what is wrong and s
 
 | # | Issue the AI raised | Element it cited | Verdict | Why |
 | --- | --- | --- | --- | --- |
-| 1 | <issue> | <element> | <accept / reject> | <your reason> |
-| 2 | <issue> | <element> | <accept / reject> | <your reason> |
-| 3 | <issue> | <element> | <accept / reject> | <your reason> |
+| 1 | The overlap check uses `endTime` but the sequence never calculates it from `duration`. | `sequence.puml`, `hasOverlappingActiveBooking(roomId, startTime, endTime)` message | accept | Real gap. Added `endTime = startTime + duration` after R1 validation and before the overlap query. |
+| 2 | `validate R3` claims to check whether the room is blocked, but no message queries the Room. | `sequence.puml`, self-message `validate R3` | accept | Real gap. Added `BookingService -> BookingRepository : findRoom(roomId)` before the R3 check so the blocked status comes from an actual object. |
+| 3 | The sequence diagram does not include a cancellation flow. | `sequence.puml` (missing `cancelBooking`) | reject | Out of scope. The README Task 3 prompt fixes the sequence diagram to **Book room only**. Cancellation is a separate use case (UC3) and is modelled in the use-case diagram, not here. |
+| 4 | The class diagram has no Administrator class, no `User` superclass. | `class.puml` | reject | Class diagram is a **domain** model. Actors are not automatically domain classes, and the task prompt explicitly says "Add other classes only when requirements justify them" and "Avoid unjustified inheritance". A `User` superclass with `Student <|-- User` and `Administrator <|-- User` would be unjustified inheritance — exactly what the task forbids. |
+| 5 | `Cancel Own Booking <<include>> Receive Booking Confirmation` contradicts R4. | `use-case.puml`, `UC3 ..> UC4` with `' why:` comment | reject | Modelling decision. R4 states one rule about booking confirmation; US-06 states a separate student goal about receiving confirmation on booking **or** cancellation. Two independent requirements can both hold. The include is defensible and the `' why:` comment states the reason. |
+| 6 | `Room.isAvailable()` does not show whether it considers blocked state and overlaps. | `class.puml`, `Room.isAvailable` operation | reject | The R2 constraint is already documented in a `note right of Booking`, and R3 is a `blocked` flag on Room that the operation reads. Documenting every precondition as a note would clutter the diagram without adding information the R2 note and the `isBlocked` attribute already carry. |
+| 7 | Usage review (US-05) has no supporting class or sequence. | `class.puml`, `sequence.puml` | reject | Same scope reason as issue 3: the sequence diagram is fixed to Book room, and the class diagram is a domain model — reporting is an application concern, not a domain concept. US-05 is modelled in the use-case diagram (UC7 Review Room Usage), which is where it belongs. |
 
 ---
 
 ## 7. Consistency table
 
-One row for each of **R1–R4**, then one row for **every use case in your revised use-case
-diagram**, spelled exactly as in the diagram, with the story ID it traces to.
-
 | Requirement / story | Use case | Classes | Behaviour element |
 | --- | --- | --- | --- |
-| R1 | <use case> | <classes and attributes> | <message, guard or decision> |
-| R2 | <use case> | <classes, note> | <message, guard or decision> |
-| R3 | <use case> | <classes and attributes> | <message, guard or decision> |
-| R4 | <use case> | <classes> | <message or action> |
-| <US-01> | <Book room> | <Student, Booking, Room> | <message or action> |
+| R1 | UC2 Book Study Room | Booking (startTime, endTime) | note on BookingService; self-message `validate R1`; `endTime = startTime + duration` |
+| R2 | UC2 Book Study Room | Booking (status), note right of Booking | `hasOverlappingActiveBooking(roomId, startTime, endTime)`; note right of BookingRepository |
+| R3 | UC2 Book Study Room | Room (isBlocked) | `findRoom(roomId)`; self-message `validate R3`; note on BookingService |
+| R4 | UC2 Book Study Room → UC4 Receive Booking Confirmation | Booking.confirm(), BookingStatus | `bookingConfirmed(bookingId)` reply to Student |
+| US-01 | UC1 View Room Availability | Room.isAvailable(), Booking | (no sequence element — availability is a read operation, not part of the Book room flow) |
+| US-02 | UC2 Book Study Room | Student, Room, Booking | full sequence diagram |
+| US-03 | UC3 Cancel Own Booking | Booking.cancel(), BookingStatus.CANCELLED | (not in the sequence diagram — sequence is fixed to Book room) |
+| US-04 | UC5 Block Room, UC6 Unblock Room | Room.block(), Room.unblock() | (not in the sequence diagram) |
+| US-05 | UC7 Review Room Usage | Booking (as the data source for a report) | (not in the sequence diagram) |
+| US-06 | UC4 Receive Booking Confirmation | Booking.confirm() | `bookingConfirmed(bookingId)` |
 
 ---
 
 ## 8. Change log
 
-At least **three** rows, and at least one for each required diagram (use case, class, your
-behaviour diagram). "Before" is what the AI produced; "After" is what you submitted.
-
 | # | Diagram | Before (AI's original) | After (your revision) | Reason |
 | --- | --- | --- | --- | --- |
-| 1 | <use case> | <before> | <after> | <rule, story or notation reason> |
-| 2 | <class> | <before> | <after> | <reason> |
-| 3 | <sequence / activity> | <before> | <after> | <reason> |
+| 1 | use case | `Student --> UC4 Receive Booking Confirmation` | Association removed; UC4 reached only via `<<include>>` from UC2 and UC3 | R4 — a confirmation is a system outcome, not a student goal. The checker (UC5) fails an actor linked to a confirmation use case. |
+| 2 | use case | `UC2 ..> UC4 : <<include>>` with no comment | `' why: R4 - a successful booking produces a confirmation` added above the line | README §4 requires a `' why:` comment above every include/extend. The checker (UC8) fails includes without a comment. |
+| 3 | class | `hide methods` directive at the top | directive removed | The Task 2 prompt asks to add "appropriate operations", which the directive would have hidden at render time. |
+| 4 | class | no note on Booking | `note right of Booking` stating R2 | R2 cannot be expressed as a multiplicity; README §4 requires it in a note. The checker (CL8) fails without it. |
+| 5 | sequence | `validate R1` and `validate R3` with no note; no `findRoom` call | added `note right of BookingService` for R1 and R3; added `findRoom(roomId)` message before R3 validation | R3 was claimed to be validated but no Room object was queried. The critique (issue 2) correctly flagged this. |
+| 6 | sequence | `hasOverlappingActiveBooking(roomId, startTime, endTime)` called without `endTime` being calculated | added self-message `endTime = startTime + duration` before the query | The critique (issue 1) correctly flagged that `endTime` came from nowhere. R1 limits `duration`, so the sequence now makes the transformation explicit. |
+| 7 | sequence | long guards `alt Room is available` / `else Room is unavailable`; no R2 note | shortened to `alt available` / `else unavailable`; added `note right of BookingRepository` for R2 | README §4 notation convention; and R2 was not named anywhere in the diagram until the note was added. |
 
 ---
 
