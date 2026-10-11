@@ -1,8 +1,8 @@
 # Week 05 — Lab report
 
-**Name:**
-**Group:**
-**Date:**
+**Name:** Zhanibek Alimkulov
+**Group:** Monday 16:00-19:00
+**Date:** 2026-10-11
 
 Fill in every section. **Do not delete, rename or renumber the headings** — the checker and the
 grader find your answers by them. Add rows to any table; never remove its header.
@@ -27,8 +27,114 @@ My Week 04 declaration said touching bookings are **not allowed**, but AC4 this 
 **The assistant's plan, pasted unedited:**
 
 ```text
-(paste here)
+Implementation plan for can_book
+
+Use Python 3 and check the conditions in order. Return False as soon as any condition fails; return True only if all five acceptance criteria are satisfied.
+
+1. Checks in order
+
+1. Validate the time interval (AC1).
+
+Require 0 <= start < end <= 1440.
+
+Require start > now.
+
+Otherwise, return False.
+
+2. Check duration (AC2).
+
+Calculate end - start.
+
+Require the duration to be at most 120 minutes.
+
+Otherwise, return False.
+
+3. Check room status (AC3).
+
+If blocked is True, return False.
+
+4. Check existing bookings (AC4).
+
+Compare the requested interval with every interval in existing.
+
+An overlap exists when start < existing_end and end > existing_start.
+
+If any overlap exists, return False.
+
+Touching endpoints are allowed.
+
+5. Accept the booking time (AC5).
+
+Return True only if every preceding check passes.
+
+Do not modify existing or any other input.
+
+2. Assumptions
+
+All times are integer minutes after midnight on the same date.
+now is valid and falls between 0 and 1439, inclusive.
+blocked is a Boolean.
+Every existing booking is a valid (start, end) tuple for this room and represents an active booking.
+Inputs satisfy the stated contract; additional type validation is not required.
+Intervals include their start and exclude their end, so adjacent bookings can share a boundary.
+The function only decides whether the requested time can be booked; saving and confirmation are outside its scope.
+
+3. Boundary cases to test
+
+- Earliest valid start: start = now + 1 — Passes the start-time check
+- Start equals now: start = now — False
+- Start before now: start < now — False
+- Start at midnight: start = 0, end = 60, now = 1439 — False
+- End at midnight boundary: start = 1380, end = 1440, now = 1379 — True if other checks pass
+- End exceeds day: end = 1441 — False
+- Zero-length interval: start = end — False
+- Reversed interval: start > end — False
+- Minimum duration: end - start = 1 — Passes duration check
+- Maximum duration: end - start = 120 — Passes duration check
+- Duration too long: end - start = 121 — False
+- Room blocked: blocked = True — False
+- No existing bookings: existing = [] — Passes overlap check
+- Touching at start: Requested 600-660; existing 540-600 — No overlap
+- Touching at end: Requested 600-660; existing 660-720 — No overlap
+- Exact duplicate: Requested 600-660; existing 600-660 — False
+- Request inside existing: Requested 610-650; existing 600-660 — False
+- Existing inside request: Requested 600-660; existing 610-650 — False
+- Partial overlap: Requested 630-690; existing 600-660 — False
+- Multiple bookings: No overlap with one booking, overlap with another — False
+- Input preservation: Check existing before and after the call — Unchanged
+
+4. Key implementation risks
+
+Using >= or <= incorrectly in the overlap check, which would reject bookings that touch at an endpoint.
+Checking duration incorrectly, such as rejecting exactly 120 minutes.
+Allowing start == now, despite AC1 requiring a strictly future start.
+Checking only one existing booking instead of all bookings.
+Modifying existing while checking for conflicts.
+Returning True too early, before all acceptance criteria have been evaluated.
+
+The most important tests are the exact boundaries: start == now, duration of exactly 120 minutes, end == 1440, and bookings that touch but do not overlap.
 ```
+
+**What the plan invented or changed.** One row for every rule in the plan that is not in the
+contract or in AC1–AC5, or that says something different from them. If you found none, write one
+row saying which lines of the plan you checked against which AC.
+
+| # | What the plan said | What the contract or the AC says | What I did |
+| --- | --- | --- | --- |
+| 1 | Every step in the plan — the check order (AC1, AC2, AC3, AC4), the overlap formula `start < existing_end and end > existing_start`, the `start > now` requirement, the duration limit of 120, and the "do not modify existing" rule | All of these are directly in the contract block or in AC1–AC5. No step adds a rule the specification does not state. No buffer between bookings, no sorting, no storage, no validation of contract-guaranteed inputs. | Nothing to drop. Kept the plan as written. |
+
+**Boundary cases the assistant suggested that I kept as tests:**
+
+- `start == now` (AC1: `start > now` means strictly future)
+- `end == 1440` (AC1: `end <= 1440`)
+- `end == 1441` (AC1: rejected)
+- `duration == 120` (AC2: allowed, "at most")
+- `duration == 121` (AC2: rejected)
+- touching at end: request `600–660`, existing `660–720` (AC4: allowed)
+- touching at start: request `600–660`, existing `540–600` (AC4: allowed)
+- exact duplicate: request `600–660`, existing `600–660` (AC4: rejected)
+- `existing == []` (AC4: passes trivially)
+- input preservation: check `existing` before and after
 
 **What the plan invented or changed.** One row for every rule in the plan that is not in the
 contract or in AC1–AC5, or that says something different from them. If you found none, write one
@@ -46,21 +152,22 @@ row saying which lines of the plan you checked against which AC.
 
 ## 3. Task 2 — the first version (v1), read before it was run
 
-v1 is saved as `code/original/booking_v1.<ext>`, exactly as the assistant returned it: yes / no
+v1 is saved as `code/original/booking_v1.py`, exactly as the assistant returned it: yes
 
 **AC map.** One row per condition in v1. Quote the line.
 
 | # | Line in v1 | AC it implements | Correct as written? If not, why |
 | --- | --- | --- | --- |
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
+| 1 | `if not (0 <= start < end <= 1440 and start > now): return False` | AC1 | Correct. `start < end` rejects zero-length and reversed intervals; `<= 1440` rejects `end > 1440`; `start > now` is strict, so a request starting exactly at `now` is rejected. |
+| 2 | `if end - start > 120: return False` | AC2 | Correct. Uses `>` (strict), so a duration of exactly 120 passes, which matches "at most 120 minutes". |
+| 3 | `if blocked: return False` | AC3 | Correct. Rejects any request when the room is blocked, regardless of other conditions. |
+| 4 | `for existing_start, existing_end in existing: if start < existing_end and end > existing_start: return False` | AC4 | Correct. The two strict comparisons `start < existing_end and end > existing_start` are the standard overlap test that excludes touching endpoints. Request `660–720` vs existing `600–660`: `660 < 660` is False, so no overlap is detected — touching is allowed as required. The loop checks every existing booking. |
+| 5 | `return True` | AC5 | Correct. Reached only when all preceding checks passed, and no input was modified anywhere. |
 
 **Anything in v1 that no AC asks for** (extra validation, a buffer between bookings, logging,
 saving the booking, a different return type):
 
--
+- Nothing. The function does exactly AC1–AC5 in order, returns a Python bool, and does not touch `existing` or any other input. No buffer, no sorting, no storage, no logging, no type validation beyond what the contract already guarantees.
 
 ---
 
