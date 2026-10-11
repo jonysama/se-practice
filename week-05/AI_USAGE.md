@@ -6,20 +6,20 @@ including anything an AI tool produced.
 
 | Tool | Exact model / plan | Used for | Which files it touched |
 | --- | --- | --- | --- |
-| | | the plan (Task 1) | |
-| | | the first version, v1 (Task 2) | |
-| | | | |
+| ChatGPT | GPT-5.6 Luna | the plan (Task 1) | `lab-report.md` §2 |
+| ChatGPT | GPT-5.6 Luna | the first version, v1 (Task 2) | `code/original/booking_v1.py`, `code/booking.py` |
+| ChatGPT | GPT-5.6 Luna | the critique (Task 5) | `lab-report.md` §6 |
+| DeepSeek chat | DeepSeek-V4.1-Flash | Discussion of checker feedback and help wording report sections | `lab-report.md` §4, §5, §7, §9 |
 
-**The assistant wrote, or helped write, my tests in `code/`:** yes / no
-<!-- Either answer is allowed. If "yes": say which tests, and how you checked that their EXPECTED
-     values come from AC1–AC5 and not from what the generated code happens to return. -->
+**The assistant wrote, or helped write, my tests in `code/`:** no — the two initial table-case tests came with the starter file; the remaining 27 I wrote myself.
 
-**`code/original/` holds the assistant's first answer exactly as returned:** yes / no
+**`code/original/` holds the assistant's first answer exactly as returned:** yes
 
-**Everything I submitted, I can explain and defend in class — including the overlap condition:** yes / no
+**Everything I submitted, I can explain and defend in class — including the overlap condition:** yes
 
 **Anything I accepted from the AI without fully understanding it:**
-<!-- Name the file and the line. An honest entry here costs far less than a blank one that turns out to be untrue. -->
 
-Signed: <your name>
-Date:
+Nothing — v1 was correct as written, and I read every line against AC1–AC5 before running it.
+
+Signed: Zhanibek Alimkulov
+Date: 2026-10-11
