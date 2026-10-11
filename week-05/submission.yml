@@ -1,0 +1,44 @@
+schema: 1
+week: "05"
+
+student:
+  name: Zhanibek Alimkulov
+  student_id: 24B031621
+  github: jonysama
+
+assistant:
+  tool: ChatGPT
+  model: GPT-5.6 Luna
+
+language:
+  name: python
+  path: A
+
+counts:
+  tests: 29
+  v1_changed: no
+  change_log_rows: 6
+
+checker:
+  pass: 32
+  fail: 0
+  error: 0
+  commit: cb9630c
+  known_fails: []
+
+assumptions:
+  non_integer_time: return-false
+
+carried:
+  week04_touching: not-allowed
+
+review_findings:
+  - "F7: v1 uses strict comparisons start < existing_end and end > existing_start, so touching bookings like can_book(660, 720, 540, False, [(600, 660)]) are correctly allowed."
+  - "M9: my first suite checked input preservation only on the accepted path with a sorted list; adding unsorted, empty and duplicate-list tests closed the AC5 gap."
+  - "M10: the rejected path was not covered for non-mutation; test_existing_not_modified_on_reject_unsorted and test_existing_not_modified_three_bookings now catch it."
+  - "F4: v1 uses end - start > 120 (strict), so a duration of exactly 120 minutes passes, matching AC2."
+
+honesty:
+  v1_unedited: yes
+  can_explain_overlap_without_ai: yes
+  ai_usage_disclosed: yes
