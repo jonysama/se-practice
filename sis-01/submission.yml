@@ -23,12 +23,12 @@ counts:
   main_words: 899
   reflection_words: 185
   exchanges: 3
-  verified_claims: 2
+  verified_claims: 3
   revisions: 2
 
 decisions:
   keep: 1
-  qualify: 0
+  qualify: 1
   reject: 1
 
 known_fails: []

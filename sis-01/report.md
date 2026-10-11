@@ -228,6 +228,7 @@ Remaining gaps: Bibliographic details need the full publication reference. Cost 
 | --- | --- | --- | --- |
 | Python's built-in round() uses ties-to-even rounding for numeric types. | Python 3.13 documentation, "Built-in Functions — round()", https://docs.python.org/3/library/functions.html#round, accessed 2026-10-11. | The documentation states that round() uses ties-to-even for the built-in numeric types, so round(2.5) returns 2. Confirmed. | keep |
 | Reuse always reduces cost. | Python 3.13 documentation, "decimal — Decimal fixed-point and floating-point arithmetic", section on rounding modes, https://docs.python.org/3/library/decimal.html, accessed 2026-10-11. | The decimal module exposes several rounding modes (ROUND_HALF_UP, ROUND_HALF_EVEN, and others). Reusing a library does not by itself match the department's policy, so the unconditional claim is false. | reject |
+| Most software cost is development; maintenance is a smaller part. | Sommerville, Software Engineering, 10th ed., Global Edition, Ch. 1, Section 1.2 and Figure 1.1 | Figure 1.1 shows the cost distribution across a system's life; for long-lived custom systems, evolution and maintenance can exceed initial development. True for some systems but not for a short-lived tool. | qualify |
 
 ### Change log
 
