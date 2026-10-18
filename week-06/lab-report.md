@@ -39,22 +39,35 @@ Build a small responsive Smart Campus Room Availability Checker. Requirements: A
 ## 3. Task 2 — prototype v1
 
 v1 export saved in `original/` and screenshot saved as `evidence/v1.png` **before** any cleanup
-prompt: yes / no
+prompt: yes
 
 **Bolt's list of the files/components it created, pasted unedited:**
 
 ```text
-(paste here)
+Main files/components created:
+
+src/types.ts — Type definitions for rooms, bookings, and the availability result
+src/sampleData.ts — Five fictional campus rooms and five sample bookings
+src/availability.ts — Pure function implementing all acceptance criteria
+src/App.tsx — Single-page UI with the form, result panel, room details, and booking list
 ```
 
 **What v1 does — one line per thing that works, or visibly does not:**
 
--
+- Pick a room from a dropdown — works
+- Enter start time and end time — works
+- Adjust the "current campus time" — works
+- Check Availability button — works, shows Available or Unavailable
+- Explanation text with the result — works
+- Sidebar shows existing bookings — works
+- Room blocked status — not visibly adjustable from the main UI
+- Responsive layout — visible in browser
 
 **Repair prompt** (only if the first build did not run — the deck allows one, then the result is
 v1). Leave empty if you did not need it:
 
 ```text
+none
 ```
 
 ---
