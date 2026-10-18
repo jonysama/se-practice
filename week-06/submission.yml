@@ -1,0 +1,43 @@
+schema: 1
+week: "06"
+
+student:
+  name: Zhanibek Alimkulov
+  student_id: 24B031621
+  github: jonysama
+
+assistant:
+  tool: Bolt.new
+  model: not displayed
+  fallback_reason: none
+
+bolt:
+  project_url: https://bolt.new/?classId=b821ca27-77bc-49a8-8d38-127b962fe5c9&assignmentId=88814bc6-47f1-4ee7-9e88-e3d039bf07ea&submissionId=c84146d2-48c7-cefe-af8b-bc7ed8f21989
+
+counts:
+  issues: 2
+  cleanup_prompts: 2
+  change_log_rows: 3
+  v1_matches: 8
+  final_matches: 9
+
+checker:
+  pass: 27
+  fail: 0
+  error: 0
+  commit: c767d10
+  known_fails: []
+
+assumptions:
+  end_of_day: minutes-input
+
+review_findings:
+  - "T3: v1 made the blocked room unselectable, so it could not verify AC3 — the final version allows selecting it and returns Unavailable."
+  - "T8: v1 passed the read-only check correctly (Available on both checks). This confirms AC5 was met without data mutation."
+  - "src/availability.ts: The pure function correctly enforces AC1–AC4 before returning an availability decision."
+
+honesty:
+  v1_export_unedited: yes
+  screenshots_unedited: yes
+  can_explain_component_without_ai: yes
+  ai_usage_disclosed: yes
