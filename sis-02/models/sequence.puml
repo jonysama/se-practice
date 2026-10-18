@@ -1,0 +1,81 @@
+@startuml
+title Course Registration — Sequence Diagram
+autonumber
+
+actor Student
+boundary "Electronic Course Catalog" as Catalog
+control "Registration Service" as Service
+database "Enrollment Store" as Store
+
+== Catalog browsing (AC-01, AC-02) ==
+
+Student -> Catalog: Browse catalog(semester)
+Catalog -> Store: Find offerings for semester
+Store --> Catalog: Courses, offerings,\ncapacity and enrollment counts
+Catalog -> Catalog: Calculate available places\n(capacity - enrollment count)
+Catalog --> Student: Display course code, title,\noffering and available places
+
+note over Catalog, Store
+Catalog browsing is read-only.
+It does not reserve a place or change
+the enrollment count.
+Displayed availability may become stale.
+end note
+
+== Registration request ==
+
+Student -> Catalog: Request registration(offering)
+Catalog -> Service: Register(student, offering)
+
+group Atomic registration operation (AC-03, AC-04, AC-05, AC-06)
+    Service -> Store: Begin atomic operation
+    activate Store
+
+    note right of Store
+    Duplicate check, current capacity check,
+    and enrollment creation are protected
+    as one atomic operation.
+    Concurrent requests must not violate
+    capacity or uniqueness constraints.
+    end note
+
+    Store -> Store: Check existing enrollment\nfor student + offering
+
+    alt [Existing enrollment] Already enrolled (AC-05)
+        Store -> Store: End operation without changes
+        Store --> Service: Reject: "already enrolled"
+        deactivate Store
+        Service --> Catalog: Registration rejected:\n"already enrolled"
+        Catalog --> Student: Show rejection reason
+
+    else [No existing enrollment]
+        Store -> Store: Read authoritative current enrollment count
+        Store -> Store: Check enrollmentCount < capacity
+
+        alt [enrollmentCount >= capacity] Offering is full (AC-04)
+            Store -> Store: End operation without changes
+            Store --> Service: Reject: "course full"
+            deactivate Store
+            Service --> Catalog: Registration rejected:\n"course full"
+            Catalog --> Student: Show rejection reason
+
+        else [enrollmentCount < capacity] Place available (AC-03)
+            Store -> Store: Create exactly one Enrollment
+            Store -> Store: Commit atomic operation
+            Store --> Service: Success; updated derived availability
+            deactivate Store
+            Service --> Catalog: Registration confirmed
+            Catalog --> Student: Show confirmation
+        end
+    end
+end
+
+note over Service, Store
+The store represents the authoritative registration
+state. The atomic operation must prevent concurrent
+requests from exceeding capacity or creating duplicate
+enrollments for the same student and offering.
+The specific concurrency-control mechanism is unspecified.
+end note
+
+@enduml
