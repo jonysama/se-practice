@@ -1,0 +1,44 @@
+schema: 1
+week: "07"
+
+student:
+  name: Zhanibek Alimkulov
+  student_id: 24B031621
+  github: jonysama
+
+assistant:
+  tool: ChatGPT
+  model: not displayed
+
+project:
+  baseline: starter
+  bolt_url: not-shared
+  vitest: 3.2.7
+
+counts:
+  tests_first: 17
+  tests_final: 17
+  first_run_failed: 1
+  review_decisions: 2
+  mutants_detected: 3
+
+checker:
+  pass: 33
+  fail: 0
+  error: 0
+  commit: 6c21bc4
+  known_fails: []
+
+assumptions:
+  invalid_existing_booking: returns-true
+
+review_findings:
+  - "T06: the first suite expected 720-840 to be rejected, but AC2 allows exactly 120 minutes."
+  - "M1: changing the condition to >= 120 was caught by T06."
+  - "M2: changing the overlap to <= and >= was caught by T01 and T08."
+
+honesty:
+  first_suite_unedited: yes
+  outputs_unedited: yes
+  mutants_restored: yes
+  ai_usage_disclosed: yes
