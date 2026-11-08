@@ -10,9 +10,7 @@ export function canBook({ start, end, now, blocked, bookings }: {
   if (end - start > 120) return false;
   if (blocked) return false;
   for (const b of bookings) {
-    if (start <= b.end && end >= b.start) return false; // BUG-A: <= и >= вместо < и >
+    if (start < b.end && end > b.start) return false;
   }
-  // BUG-B: функция меняет исходный массив
-  bookings.push({ start, end });
   return true;
 }
