@@ -61,7 +61,14 @@ You copied the whole `canBook` function from `buggy/booking.ts` (or `.js`) over 
 nothing else. This is the real output:
 
 ```text
-(paste here)
+RUN  v3.2.7 C:/Kbtu/se-practice/week-08/app
+
+ ❯ src/booking.test.ts (17 tests | 3 failed) 9ms
+   × Smart Campus Booking > T01 AC4: touching after 7ms
+     → expected false to be true // Object.is equality
+   ...
+ Test Files  1 failed (1)
+      Tests  3 failed | 14 passed (17)
 ```
 
 ### 2.3 One failing test per bug
@@ -71,7 +78,19 @@ Run them **on the buggy code**. Both must fail here. That is the evidence that e
 its bug.
 
 ```text
-(paste here)
+RUN  v3.2.7 C:/Kbtu/se-practice/week-08/app
+
+ ❯ src/booking.test.ts (19 tests | 5 failed) 9ms
+   × Smart Campus Booking > T01 AC4: touching after 5ms
+     → expected false to be true // Object.is equality
+   ...
+   × Smart Campus Booking > BUG-A AC4: touching two bookings is allowed 0ms
+     → expected false to be true // Object.is equality
+   × Smart Campus Booking > BUG-B AC5: canBook does not mutate the bookings array 1ms
+     → expected '[{"start":600,"end":660},{"start":720…' to be '[{"start":600,"end":660}]' // Object.is equality
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 14 passed (19)
 ```
 
 ---
@@ -83,8 +102,8 @@ One row per defect. At least **BUG-A and BUG-B**. "Suspected cause" is your hypo
 
 | Defect | Test ID | Input | Expected | Actual | Suspected cause (line and why) |
 | --- | --- | --- | --- | --- | --- |
-| BUG-A | | | | | |
-| BUG-B | | | | | |
+| BUG-A | T01, T08, BUG-A | 660-720 | true | false | The loop uses `start <= b.end && end >= b.start`, which treats touching intervals as an overlap. It should use strict inequalities `<` and `>`. |
+| BUG-B | AC5, BUG-B | 720-780 | true, data unchanged | true, but array is changed | The function has `bookings.push(...)` at the end. A pure availability check should not mutate the input array. |
 
 ---
 

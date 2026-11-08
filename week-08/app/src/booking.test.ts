@@ -58,4 +58,17 @@ describe('Smart Campus Booking', () => {
   test('X2 AC1: starts past now', () => {
     expect(canBook({ start: 1400, end: 1440, now: 1430, blocked: false, bookings: [] })).toBe(false);
   });
+    test('BUG-A AC4: touching two bookings is allowed', () => {
+    // 660-720 касается 600-660 (слева) и 720-780 (справа)
+    expect(canBook({ start: 660, end: 720, now: 540, blocked: false, bookings: [{ start: 600, end: 660 }, { start: 720, end: 780 }] })).toBe(true);
+  });
+
+  test('BUG-B AC5: canBook does not mutate the bookings array', () => {
+    const bookings = [{ start: 600, end: 660 }];
+    const before = JSON.stringify(bookings);
+    // Запрос, который не касается брони (720-780)
+    const result = canBook({ start: 720, end: 780, now: 540, blocked: false, bookings });
+    expect(result).toBe(true);
+    expect(JSON.stringify(bookings)).toBe(before); // Проверяем, что массив не изменился
+  });
 });
