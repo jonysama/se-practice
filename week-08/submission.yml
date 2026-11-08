@@ -28,7 +28,7 @@ checker:
   pass: 31
   fail: 0
   error: 0
-  commit: <ХЕШ>
+  commit: aafcbc8
   known_fails: []
 
 verdict:
