@@ -19,7 +19,7 @@ checker:
   pass: 30
   fail: 0
   error: 0
-  commit: <ХЕШ>
+  commit: 5f8595e
   known_fails: []
 
 review_findings:
