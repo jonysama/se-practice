@@ -1,0 +1,35 @@
+schema: 1
+week: "09"
+
+student:
+  name: Zhanibek Alimkulov
+  student_id: 24B031621
+  github: jonysama
+
+assistant:
+  tool: ChatGPT
+  model: GPT Astra 6
+  fresh_chats: yes
+
+calls:
+  r3: asked
+  first_run_s_fails: 9
+
+checker:
+  pass: 30
+  fail: 0
+  error: 0
+  commit: <ХЕШ>
+  known_fails: []
+
+review_findings:
+  - "R1: the model correctly converted all times to minutes and filled every argument."
+  - "R2: the model converted 16:30 to 990 and called the tool, although canBook will say Unavailable due to the blocked room and the 150-minute duration."
+  - "R3: the model asked for clarification instead of guessing, because start, end, now and blocked were missing."
+  - "S05: without additionalProperties: false, the schema accepts an extra room field that check_room would ignore."
+
+honesty:
+  definition_written_by_me: yes
+  calls_unedited: yes
+  outputs_unedited: yes
+  ai_usage_disclosed: yes
